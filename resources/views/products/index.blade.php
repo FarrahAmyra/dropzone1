@@ -1,14 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-12 col-md-offset-0">
-            <div class="panel panel-default">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="panel panel-success">
                 <div class="panel-heading">Products</div>
 
                 <div class="panel-body">
-                    <table class="table">
+
+                <a href="{{ route('products.create') }}" class="btn btn-success pull-right">Create Product</a>
+                    <table class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>Product Title</th>
