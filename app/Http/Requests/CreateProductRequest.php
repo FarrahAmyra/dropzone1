@@ -28,9 +28,12 @@ class CreateProductRequest extends FormRequest
             'product_desc' => 'required',
             'price' => 'required|integer',
             'condition' => 'required | alpha',
+            'state_id' => 'required|integer',
             'area_id' => 'required|integer',
+            'category_id' => 'required|integer',
             'subcategory_id' => 'required|integer',
-            'brand_id' => 'required|integer'
+            'brand_id' => 'required|integer',
+            'product_image' => 'image|mimes:png,jpg,jpeg'
         ];
     }
 }

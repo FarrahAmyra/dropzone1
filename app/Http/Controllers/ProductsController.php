@@ -22,10 +22,29 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
-        return view('products.index', compact('products')); //compaq == with('products') hk abe li ajar tuh
+        //kalau nk guna relationship kalau dah ada data
+        $products = Product::with('brand', 'user', 'area', 'subcategory');
+
+        //additional searching
+        if(!empty($request->search_anything)){
+            $search_anything = $request->search_anything;
+
+            $products = $products->where(function($query) use ($search_anything){
+                $query->orWhere('product_name', 'Like', '%'.$search_anything. '%')
+                ->orWhere('product_desc', 'Like', '%' .$search_anything. '%');
+            });
+        }
+
+        //pagination
+        $products = $products->paginate(3);
+
+        //load additional data for searching
+        $brands = Brand::pluck('brand_name', 'id');
+        $categories = Category::pluck('category_name', 'id');
+        $states = State::pluck('state_name', 'id');
+        return view('products.index', compact('products', 'brands', 'categories', 'states')); //compaq == with('products') hk abe li ajar tuh
     }
 
     /**
@@ -65,7 +84,18 @@ class ProductsController extends Controller
         $product->brand_id = $request->brand_id;
 
         $product->user_id = auth()->id();
+
+        //check ad file yg diupload or not
+        if ($request->hasFile('product_image')) 
+        {
+            //$path = $request->product_image->store('images');
+            $product->product_image = $request->product_image->hashName();    
+        }
+
         $product->save();
+
+        //selepas berjaya simpan set success message
+        flash('New Product is successfully inserted into database.')->success();
 
         return redirect()->route('products.index');
 
@@ -90,7 +120,20 @@ class ProductsController extends Controller
      */
     public function edit($id)
     {
-        //
+        //dapatkan maklumat product
+        $product = Product::find($id);
+
+        $states = State::pluck('state_name', 'id');
+        $brands = Brand::pluck('brand_name', 'id');
+        $categories = Category::pluck('category_name', 'id');
+        $subcategories = Subcategory::pluck('name', 'id');
+
+        //get area based on previously selected state
+        $areas = $this->getStateAreas($product->area->state_id);
+        $subcategories = $this->getCategorySubcategories($product->subcategory->category_id);
+
+        //tolong paparkan edit.blade.php
+        return view('products.edit', compact('brands', 'subcategories', 'states', 'categories', 'product', 'areas'));
     }
 
     /**
@@ -102,7 +145,30 @@ class ProductsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        // $product->nama attribute = $request->product_image;
+        $product->product_name= $request->product_name;
+        $product->product_desc= $request->product_desc;
+        $product->price = $request->price;
+        $product->condition = $request->condition;
+        $product->area_id = $request->area_id;
+        $product->subcategory_id = $request->subcategory_id;
+        $product->brand_id = $request->brand_id;
+
+        //check ad file yg diupload or not
+        if ($request->hasFile('product_image')) 
+        {
+            //$path = $request->product_image->store('images');
+            $product->product_image = $request->product_image->hashName();     
+        }
+
+        $product->save();
+
+        flash('Your product is successfully updated.');
+
+        return redirect()->route('products.edit', $product->id);
+        // return redirect()->route('products.index');
     }
 
     /**
