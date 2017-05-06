@@ -9,7 +9,7 @@
             <div class="panel-heading">Search Product</div>
             <div class="panel-body">
                 
-            <form action="{{ route ('products.index')}}" method="get">
+            <form action="{{ route ('admin.products.index')}}" method="get">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group {{ $errors->has('state_id') ? 'has-error' : false }}">
@@ -66,16 +66,9 @@
                 <div class="panel-heading">Products</div>
 
                 <div class="panel-body">
-                    <div class="row">
-                        <div class="form-group">
-                            <!-- Hanya user yang login sahaj blh create product -->
-                            @role('members') 
-                            {{-- link to create a new product --}}
-                            <a href="{{ route('products.create') }}" class="btn btn-success pull-right">Create Product</a>
-                            @endrole
-                        </div>
-                    </div>
                     
+                    {{-- link to create a new product --}}
+                    <a href="{{ route('admin.products.create') }}" class="btn btn-success pull-right">Create Product</a>
                     <br>
                     <table class="table table-bordered table-striped table-hover">
                         <thead>
@@ -116,7 +109,18 @@
                                 <td>{{ $product->brand->brand_name }}</td>
                                 <td>{{ $product->user->name }}</td>
                                 <td>
-                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-info">Show</a>
+                                    {!! Form::open(['method' => 'POST', 'route' => ['admin.products.destroy', $product->id], 'class' => 'form-horizontal']) !!}
+
+                                        {!! Form::hidden('_method', 'DELETE') !!}
+
+                                        {{ csrf_field() }}
+                                    
+                                        <div class="btn-group pull-right">
+                                            <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-success btn-mini">Edit</a>
+                                            {!! Form::button("Delete", ['class' => 'btn btn-danger delete', 'role' => 'button']) !!}
+                                        </div>
+                                    
+                                    {!! Form::close() !!}
                                 </td>
                             </tr>
 
@@ -160,7 +164,7 @@
 
             function getStateAreas(state_id){
 
-                var ajax_url = '/products/areas/' + state_id;
+                var ajax_url = 'admin/products/areas/' + state_id;
                 $.get( ajax_url, function( data ) {
                   //console.log(data);
 
@@ -199,7 +203,7 @@
 
             function getCategorySub(category_id){
 
-                var ajax_url = '/products/subcategories/' + category_id;
+                var ajax_url = 'admin/products/subcategories/' + category_id;
                 $.get( ajax_url, function( data ) {
                   //console.log(data);
 

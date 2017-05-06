@@ -34,6 +34,8 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            //\UxWeb\SweetAlert\ConvertMessagesIntoSwetAlert::class,
+
         ],
 
         'api' => [
@@ -56,5 +58,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'check_user_role' => \App\Http\Middleware\CheckUserRole::class,
+        'check_product_ownership' => \App\Http\Middleware\CheckProductOwnership::class,
     ];
 }

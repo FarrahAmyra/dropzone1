@@ -11,9 +11,7 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'ProductsController@index');
 
 Auth::routes();
 
@@ -23,8 +21,27 @@ Route::resource('areas', 'AreasController');
 Route::resource('categories', 'CategoriesController');
 Route::resource('subcategories', 'SubcategoriesController');
 Route::resource('listingtypes', 'ListingtypesController');
+
+// route for brands
 Route::resource('brands', 'BrandsController');
+
+// route for products
+Route::get('my_products' , 'ProductsController@my_products')->name('my_products');
+
 Route::get('products/areas/{state_id}', 'ProductsController@getStateAreas');
 Route::get('products/subcategories/{category_id}', 'ProductsController@getCategorySubcategories');
 Route::resource('products', 'ProductsController');
+
+
+// Route for admin manage products
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+   
+   // Route for managing product
+	Route::get('products/areas/{state_id}', 'Admin\AdminProductsController@getStateAreas');
+	Route::get('products/subcategories/{category_id}', 'Admin\AdminProductsController@getCategorySubcategories');
+	Route::resource('products', 'Admin\AdminProductsController');
+
+});
+
+
 

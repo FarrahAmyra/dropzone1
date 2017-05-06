@@ -1,7 +1,11 @@
 <?php
+// namespace kna tukar ikut nama folder
+namespace App\Http\Controllers\Admin; 
+// kena use App\Http\
+use App\Http\Controllers\Controller;
 
-namespace App\Http\Controllers;
-
+// tambah middleware sendiri untk cek role user
+use App\Http\Middleware\CheckUserRole;
 use Illuminate\Http\Request;
 
 use App\Product;
@@ -16,7 +20,7 @@ use App\Category;
 use App\Http\Requests\CreateProductRequest;
 use Alert;
 
-class ProductsController extends Controller
+class AdminProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,12 +29,10 @@ class ProductsController extends Controller
      */
     public function __construct(){
 
-        // check dah login ke belum kecuali method index
-        $this->middleware('auth')->except('index', 'getStateAreas', 'getCategorySubcategories', 'show');
+        // check dah login ke belum
+        $this->middleware('auth');
 
-        $this->middleware('check_user_role:members')->except('index', 'getStateAreas', 'getCategorySubcategories', 'show');
-
-        $this->middleware('check_product_ownership')->only('edit', 'destroy', 'update');
+        $this->middleware('check_user_role:admin');
 
     }
 
@@ -38,7 +40,7 @@ class ProductsController extends Controller
     {
         //kalau nk guna relationship kalau dah ada data
         $products = Product::with('brand', 'user', 'area', 'subcategory');
-
+        // dd($products);
         //additional searching
         if(!empty($request->search_anything)){
             $search_anything = $request->search_anything;
@@ -98,7 +100,9 @@ class ProductsController extends Controller
         $brands = Brand::pluck('brand_name', 'id');
         $categories = Category::pluck('category_name', 'id');
         $states = State::pluck('state_name', 'id');
-        return view('products.index', compact('products', 'brands', 'categories', 'states')); //compaq == with('products') hk abe li ajar tuh
+
+        // dd($products);
+        return view('admin.products.index', compact('products', 'brands', 'categories', 'states')); //compaq == with('products') hk abe li ajar tuh
     }
 
     /**
@@ -116,7 +120,7 @@ class ProductsController extends Controller
         $subcategories = Subcategory::pluck('name', 'id');
 
         //tolong paparkan create.blade.php
-        return view('products.create', compact('brands' , 'subcategories', 'states', 'categories'));
+        return view('admin.products.create', compact('brands' , 'subcategories', 'states', 'categories'));
     }
 
     /**
@@ -154,7 +158,7 @@ class ProductsController extends Controller
         //sweetalert message
         Alert::success('Your Product is successfully stored.');
 
-        return redirect()->route('products.my_products');
+        return redirect()->route('admin.products.index');
 
     }
 
@@ -166,19 +170,7 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        $product = Product::find($id);
-
-        $states = State::pluck('state_name', 'id');
-        $brands = Brand::pluck('brand_name', 'id');
-        $categories = Category::pluck('category_name', 'id');
-        $subcategories = Subcategory::pluck('name', 'id');
-
-        //get area based on previously selected state
-        $areas = $this->getStateAreas($product->area->state_id);
-        $subcategories = $this->getCategorySubcategories($product->subcategory->category_id);
-
-        //tolong paparkan edit.blade.php
-        return view('products.show', compact('brands', 'subcategories', 'states', 'categories', 'product', 'areas'));
+        //
     }
 
     /**
@@ -202,7 +194,7 @@ class ProductsController extends Controller
         $subcategories = $this->getCategorySubcategories($product->subcategory->category_id);
 
         //tolong paparkan edit.blade.php
-        return view('products.edit', compact('brands', 'subcategories', 'states', 'categories', 'product', 'areas'));
+        return view('admin.products.edit', compact('brands', 'subcategories', 'states', 'categories', 'product', 'areas'));
     }
 
     /**
@@ -239,8 +231,8 @@ class ProductsController extends Controller
         // sweetalert message
         Alert::success('Your Product is successfully updated.');
 
-        return redirect()->route('products.edit', $product->id);
-        // return redirect()->route('products.index');
+        return redirect()->route('admin.products.edit', $product->id);
+        // return redirect()->route('admin.products.index');
     }
 
     /**
@@ -258,7 +250,7 @@ class ProductsController extends Controller
         // sweetalert message
         Alert::success('Your Product is successfully deleted.');
 
-        return redirect()->route('products.index');
+        return redirect()->route('admin.products.index');
     }
 
     public function getStateAreas($state_id){
@@ -271,79 +263,5 @@ class ProductsController extends Controller
     {
         $subcategories= Subcategory::whereCategoryId($category_id)->pluck('name', 'id');
         return $subcategories;
-    }
-
-
-
-    //show current user logged in products only
-    public function my_products(Request $request)
-    {
-        // dapatkan id user yg tengah login
-        $user = auth()->user();
-
-        //kalau nk guna relationship kalau dah ada data
-        //dapatkan current user punya product
-        $products = $user->products()->with('brand', 'user', 'area', 'subcategory');
-
-        //additional searching
-        if(!empty($request->search_anything)){
-            $search_anything = $request->search_anything;
-
-            $products = $products->where(function($query) use ($search_anything){
-                $query->orWhere('product_name', 'Like', '%'.$search_anything. '%')
-                ->orWhere('product_desc', 'Like', '%' .$search_anything. '%');
-            });
-        }
-
-        //search by state
-        if(!empty($request->search_state)){
-            $search_state= $request->search_state;
-
-            $products = Product::whereHas('area', function ($query) use ($search_state){
-                $query->where('state_id', $search_state);
-            });
-        }
-
-        //search by area
-        if(!empty($request->search_area)){
-            $search_area= $request->search_area;
-
-            $products = Product::where(function ($query) use ($search_area){
-                $query->where('area_id', $search_area);
-            });
-        }
-
-
-        //search by category
-        if(!empty($request->search_category)){
-            $search_category= $request->search_category;
-
-            $products = Product::whereHas('subcategory', function ($query) use ($search_category){
-                $query->where('category_id', $search_category);
-            });
-        }
-
-        //search by brand
-        if(!empty($request->search_brand)){
-            $search_brand= $request->search_brand;
-
-            // $products = Product::whereHas('brand', function ($query) use ($search_brand){
-            //     $query->where('brand_id', $search_brand);
-            $products = Product::where(function ($query) use ($search_brand){
-                $query->where('brand_id', $search_brand);
-            });
-        }
-        
-        //sort by latest products
-        $products = $products->orderBy('id', 'desc');
-
-        //pagination
-        $products = $products->paginate(3);
-
-        //load additional data for searching
-        $brands = Brand::pluck('brand_name', 'id');
-        $categories = Category::pluck('category_name', 'id');
-        $states = State::pluck('state_name', 'id');
-        return view('products.my_products', compact('products', 'brands', 'categories', 'states')); //compaq == with('products') hk abe li ajar tuh
     }
 }

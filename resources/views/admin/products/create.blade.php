@@ -19,10 +19,10 @@
                     </ul>
                 </div>
                 @endif
-                <!-- <a href="{{ route('products.index') }}" class="btn btn-success pull-right">Cancel</a> -->
+                <!-- <a href="{{ route('admin.products.index') }}" class="btn btn-success pull-right">Cancel</a> -->
 
                 <!-- {!! Form::open(['route/url' => 'route.name']) !!} -->
-                {!! Form::open(['route' => 'products.store', 'files' => true]) !!}
+                {!! Form::open(['route' => 'admin.products.store', 'files' => true]) !!}
                     
                     <div class="form-group {{ $errors->has('category_id') ? 'has-error' : false }}">
                         {!! Form::label('category_id', 'Category', ['class' => 'control-label']); !!}
@@ -77,7 +77,7 @@
 
                     <div class="form-group pull-right">
                         <button type="submit" name="submit" class="btn btn-success">Submit</button>
-                        <button class="btn btn-danger"><a href="{{ route('my_products') }}" >Cancel</a></button>
+                        <button class="btn btn-danger"><a href="{{ route('admin.products.index') }}" >Cancel</a></button>
                     </div>
 
                 {!! Form::close() !!}
@@ -111,7 +111,7 @@
 
             function getStateAreas(state_id){
 
-                var ajax_url = '/products/areas/' + state_id;
+                var ajax_url = 'admin/products/areas/' + state_id;
                 $.get( ajax_url, function( data ) {
                   console.log(data);
 
@@ -153,7 +153,7 @@
 
             function getCategorySub(category_id){
 
-                var ajax_url = '/products/subcategories/' + category_id;
+                var ajax_url = 'admin/products/subcategories/' + category_id;
                 $.get( ajax_url, function( data ) {
                   console.log(data);
 

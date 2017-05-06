@@ -88,7 +88,7 @@
 
                 {!! Form::close() !!}
 
-                <a href="{{ route('products.index') }}"><i class="btn btn-success" role="button">Back</i></a>
+                <a href="{{ route('my_products') }}"><i class="btn btn-success" role="button">Back</i></a>
                     
                 </div>
             </div>

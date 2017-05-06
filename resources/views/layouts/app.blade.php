@@ -45,8 +45,20 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
                         <li>
-                            <a href="{{ route('products.index') }}">Products</a>
+                            <a href="{{ route('products.index') }}">Home</a>
                         </li>
+                        @role('members')
+                        <li>
+                            {{-- @if(Auth::check()) --}}
+                            <a href="{{ route('my_products') }}">My Products</a>
+                            {{-- @endif --}}
+                        </li>
+                        @endrole
+                        @role('admin')
+                        <li>
+                            <a href="{{ route('admin.products.index') }}">Manage Products</a>
+                        </li>
+                        @endrole
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -82,9 +94,11 @@
         </nav>
 
         <!-- Paparkan success message -->
-        <div class="container-fluid">
+        {{-- <div class="container-fluid">
             @include('flash::message') 
-        </div>
+        </div> --}}
+
+
         
         @yield('content')
        
@@ -93,6 +107,9 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/sweetalert.min.js') }}"></script>
+
+    {{-- include sweetalert --}}
+        @include('sweet::alert')
 </body>
 </html>
  @yield('script')

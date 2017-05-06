@@ -63,7 +63,7 @@
         </div>
 
             <div class="panel panel-success">
-                <div class="panel-heading">Products</div>
+                <div class="panel-heading">Manage My Products</div>
 
                 <div class="panel-body">
                     <div class="row">
@@ -116,7 +116,18 @@
                                 <td>{{ $product->brand->brand_name }}</td>
                                 <td>{{ $product->user->name }}</td>
                                 <td>
-                                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-info">Show</a>
+                                    {!! Form::open(['method' => 'POST', 'route' => ['products.destroy', $product->id], 'class' => 'form-horizontal']) !!}
+
+                                        {!! Form::hidden('_method', 'DELETE') !!}
+
+                                        {{ csrf_field() }}
+                                    
+                                        <div class="btn-group pull-right">
+                                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-success btn-mini">Edit</a>
+                                            {!! Form::button("Delete", ['class' => 'btn btn-danger delete', 'role' => 'button']) !!}
+                                        </div>
+                                    
+                                    {!! Form::close() !!}
                                 </td>
                             </tr>
 
