@@ -77,16 +77,18 @@
 
                     <div class="form-group">
                         @if (!empty($product->product_image))
-                            <img src="{{ asset('storage/'.$product->product_image) }}">
+                            <img src="{{ asset('storage/uploads/'.$product->product_image) }}" class="img-responsive">
                         @endif
                     </div>
 
-                    <div class="form-group pull-right">
+                    <div class="form-group pull-right btn-group">
                         <button type="submit" name="submit" class="btn btn-success">Submit</button>
-                        <button class="btn btn-danger"><a href="{{ route('products.index') }}" >Cancel</a></button>
+                        <button class="btn btn-danger" type="reset" name="reset">Reset</button>
                     </div>
 
                 {!! Form::close() !!}
+
+                <a href="{{ route('products.index') }}"><i class="btn btn-success" role="button">Back</i></a>
                     
                 </div>
             </div>

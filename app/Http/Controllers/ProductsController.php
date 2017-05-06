@@ -37,6 +37,48 @@ class ProductsController extends Controller
             });
         }
 
+        //search by state
+        if(!empty($request->search_state)){
+            $search_state= $request->search_state;
+
+            $products = Product::whereHas('area', function ($query) use ($search_state){
+                $query->where('state_id', $search_state);
+            });
+        }
+
+        //search by area
+        if(!empty($request->search_area)){
+            $search_area= $request->search_area;
+
+            $products = Product::where(function ($query) use ($search_area){
+                $query->where('area_id', $search_area);
+            });
+        }
+
+
+        //search by category
+        if(!empty($request->search_category)){
+            $search_category= $request->search_category;
+
+            $products = Product::whereHas('subcategory', function ($query) use ($search_category){
+                $query->where('category_id', $search_category);
+            });
+        }
+
+        //search by brand
+        if(!empty($request->search_brand)){
+            $search_brand= $request->search_brand;
+
+            // $products = Product::whereHas('brand', function ($query) use ($search_brand){
+            //     $query->where('brand_id', $search_brand);
+            $products = Product::where(function ($query) use ($search_brand){
+                $query->where('brand_id', $search_brand);
+            });
+        }
+        
+        //sort by latest products
+        $products = $products->orderBy('id', 'desc');
+
         //pagination
         $products = $products->paginate(3);
 
@@ -88,7 +130,7 @@ class ProductsController extends Controller
         //check ad file yg diupload or not
         if ($request->hasFile('product_image')) 
         {
-            //$path = $request->product_image->store('images');
+            $path = $request->product_image->store('public/uploads');
             $product->product_image = $request->product_image->hashName();    
         }
 
@@ -179,7 +221,11 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product=Product::findOrFail($id);
+        $product->delete();
+
+        flash('Product is successfully deleted.');
+        return redirect()->route('products.index');
     }
 
     public function getStateAreas($state_id){

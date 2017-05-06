@@ -102,8 +102,6 @@
             if (selected_state_id.length>0){
                 // console.log("Kita akan panggil balik ajax unutk dapatkan area");
                 getStateAreas(selected_state_id);
-
-                
             }
 
             $('#state_id').change(function(){
